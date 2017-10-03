@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 映射文件： 作用： 1、封装sql语句（对sql语句统一存储） 2、接受参数解析 3、返回值结果解析 -->
+<!--
+mapper:映射文件开发头标签，所有sql语句都封装mapper标签里面
+namespace:命名空间，唯一标识一个mapper映射文件，namespace名称可以自定义 
+特殊情况： 采用接口代理开发，namespace具有特殊含义，不能随便定义。 -->
+<mapper namespace="test">
+	<!-- 查询所有用户 -->
+	<select id="findAllUser" resultType="com.itheima.domain.User">
+		select * from user
+	</select>
+	<!-- 	
+	需求：根据Id查询用户 
+	select:凡是查询语句放入select标签中
+	id：sql语句唯一标识
+	parameterType：接受参数类型
+	resultType：返回值类型，无论返回是集合，还是单个对象，返回值类型都是对象
+	#{}:占位符，自动接受参数
+	参数类型：如果传递参数类型是基本类型，{}括号中可以是任意值
+		         如果传递参数是pojo，使用ognl表达式获取参数值
+	-->
+	<select id="findUserByID" parameterType="int" resultType="com.itheima.domain.User">
+		select * from user where id=#{id}
+	</select>
+	<!-- 
+	需求：根据用户名进行模糊查询	
+	#{}:占位符
+	数据类型：
+	字符类型：#{}接受参数，自动加上双引号
+	非字符类型：#{}接受参数，原样获取
+	例外：mybatis特殊处理  语法："%"#{username}"%"
+	${}:sql语句拼接
+	数据类型：
+	参数类型是基本类型：${}括号中值必须是value  '%${value}%'
+	参数类型是pojo:${}使用ognl表达式获取参数
+	 -->
+	<select id="findUserWithLike" parameterType="string" resultType="com.itheima.domain.User">
+		SELECT * FROM USER WHERE username LIKE "%"#{username}"%"
+	</select>
+	<!-- 
+	参数获取总结：
+	#{}:
+	参数类型：
+	基本类型：#{}花括号里面可以是任意值
+	pojo类型：#{}花括号里面是OGNL表达式
+	字符类型：#{}获取参数，自动加上双引号
+	非字符类型：#{}获取参数原样获取
+	${}:
+	基本类型：${}花括号里面必须是value
+	pojo类型：${}花括号里面是OGNL表达式
+	字符类型非字符类型：${}获取参数原样获取	
+	 -->
+	 <!-- 
+	 	需求：保存一个用户信息
+	 	insert:封装插入数据库sql语句标签
+	 	id：sql语句唯一标识
+	 	parameterType:指定参数类型
+	 	参数：传递pojo（User对象）
+	 		 获取参数：使用ognl表达式获取参数
+	 		 ognl：对象导航语言
+	 		 语法：属性.属性.属性
+	 		 
+	 		 useGeneratedKeys:自动生成key
+	 		 keyProperty:key为id
+	  -->
+	 <insert id="insertUser" parameterType="com.itheima.domain.User" useGeneratedKeys="true" keyProperty="id">
+	 	<!-- 
+	 	selectKey：用于定义返回对象中属性值
+	 	keyProperty：指定返回那个属性值
+	 	order:数据库表Id执行sql语句之后生成，使用AFTER
+	 	resultType：指定返回值类型
+	 	 -->
+	 <!-- 	<selectKey keyProperty="id" order="AFTER" resultType="int">
+	 		SELECT LAST_INSERT_ID()
+	 	</selectKey> -->
+	 	insert into user 
+	 	values(#{id},
+	 	#{username},
+	 	#{birthday},
+	 	#{sex},
+	 	#{address})
+	 </insert>
+	 <!-- 
+	 需求：根据Id删除用户
+	delete:用来封装删除sql语句
+	id:唯一标识一条sql语句
+	parameterType：指定传递参数类型
+	  -->	 
+	 <delete id="deleteUserByID" parameterType="int">
+	 	delete from user where id = #{id}
+	 </delete>
+	 <!-- 
+	 	需求：根据Id更新用户
+	  -->
+	 <update id="updateUserByID" parameterType="com.itheima.domain.User">
+	 	update user set username=#{username},
+	 					birthday=#{birthday},
+	 					sex=#{sex},
+	 					address=#{address}
+	 					where id=#{id}
+	 </update>
+</mapper>
